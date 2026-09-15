@@ -4,6 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Heart, Zap, Coins, ArrowRight, Dices, Sword, BookOpen, Shield, BookMarked, History, Trash2, Pencil, BookmarkPlus, Check, X } from "lucide-react";
 import { Link } from "wouter";
 
@@ -112,17 +123,37 @@ export default function Dashboard() {
             </CardTitle>
             <CardDescription className="mt-1">Toque em uma página para voltar até ela.</CardDescription>
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => dispatch({ type: "CLEAR_PAGE_HISTORY" })}
-            disabled={pageHistory.length <= 1}
-            className="shrink-0 text-muted-foreground hover:text-destructive"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Limpar
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={pageHistory.length <= 1}
+                className="shrink-0 text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Limpar
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Limpar páginas recentes?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Todas as páginas anteriores serão removidas. A página atual continuará no histórico.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={() => dispatch({ type: "CLEAR_PAGE_HISTORY" })}
+                >
+                  Limpar histórico
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2" aria-label="Histórico de páginas visitadas">
