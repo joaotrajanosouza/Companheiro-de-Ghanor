@@ -84,4 +84,8 @@ export const initialGameState: GameState = {
       important: true,
     }
   ],
+  preferences: {
+    muteAudio: false,
+    disableAnimations: false
+  }
 };

@@ -31,12 +31,14 @@ _Populate as you build — non-obvious choices a reader couldn't infer from the 
 ## Product
 
 - Ficha e recursos do personagem, inventário, perícias e modificadores.
-- Assistentes de testes e combate com resultados informados a partir de dados físicos.
+- Testes comuns com resultados informados a partir de dados físicos.
+- Combate estruturado por rodadas, com alvo, ataque normal ou magia, dados d6 animados, PV livre e histórico persistente.
 - Diário por páginas, histórico, desfazer, salvamento local e importação/exportação JSON.
 
 ## User preferences
 
-- Não incluir rolador digital ou geração aleatória de resultados; o jogador usa dados físicos.
+- Manter os testes comuns exclusivamente com dados físicos.
+- O rolador digital com animações e sons deve existir somente no sistema de combate.
 
 ## Gotchas
 

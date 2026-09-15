@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useReducer, ReactNode } from 'react';
-import { GameState, JournalEntry, Modifier, TestRecord, Combat, Character, Campaign } from './types';
+import { GameState, JournalEntry, Modifier, TestRecord, Combat, Character, Campaign, Preferences, CombatAction, CombatRound } from './types';
 import { initialGameState } from './initial-data';
 
 type Action = 
@@ -7,6 +7,7 @@ type Action =
   | { type: 'UNDO' }
   | { type: 'UPDATE_CHARACTER'; payload: Partial<Character> }
   | { type: 'UPDATE_CAMPAIGN'; payload: Partial<Campaign> }
+  | { type: 'UPDATE_PREFERENCES'; payload: Partial<Preferences> }
   | { type: 'ADD_MODIFIER'; payload: Modifier }
   | { type: 'UPDATE_MODIFIER'; payload: Partial<Modifier> & { id: string } }
   | { type: 'REMOVE_MODIFIER'; payload: string }
@@ -14,6 +15,7 @@ type Action =
   | { type: 'ADD_JOURNAL'; payload: JournalEntry }
   | { type: 'START_COMBAT'; payload: Combat }
   | { type: 'UPDATE_COMBAT'; payload: Partial<Combat> & { id: string } }
+  | { type: 'ADD_COMBAT_ACTION'; payload: { combatId: string; action: CombatAction } }
   | { type: 'END_COMBAT'; payload: string };
 
 type State = {
@@ -22,6 +24,41 @@ type State = {
 };
 
 const MAX_HISTORY = 10;
+
+function normalizeState(state: GameState): GameState {
+  // Ensure preferences exist
+  if (!state.preferences) {
+    state.preferences = { muteAudio: false, disableAnimations: false };
+  }
+
+  // Normalize combats
+  if (state.combats) {
+    state.combats = state.combats.map(c => {
+      let rounds = c.rounds;
+      if (!rounds || rounds.length === 0) {
+        // Convert old history to a single round
+        rounds = [{
+          round: 1,
+          actions: c.history.map((h, i) => ({
+            id: `legacy-${i}`,
+            timestamp: c.startedAt || new Date().toISOString(),
+            round: 1,
+            actor: 'system',
+            target: 'none',
+            kind: 'note',
+            resultText: h
+          }))
+        }];
+      }
+      return {
+        ...c,
+        startedAt: c.startedAt || new Date().toISOString(),
+        rounds
+      };
+    });
+  }
+  return state;
+}
 
 function gameReducer(state: State, action: Action): State {
   if (action.type === 'UNDO') {
@@ -32,10 +69,13 @@ function gameReducer(state: State, action: Action): State {
   }
 
   if (action.type === 'SET_STATE') {
-    return { past: [], present: action.payload };
+    return { past: [], present: normalizeState(action.payload) };
   }
 
-  const pushHistory = (newState: GameState): State => {
+  const pushHistory = (newState: GameState, skipHistory = false): State => {
+    if (skipHistory) {
+      return { past: state.past, present: { ...newState, campaign: { ...newState.campaign, updatedAt: new Date().toISOString() } } };
+    }
     const newPast = [...state.past, state.present].slice(-MAX_HISTORY);
     return { past: newPast, present: { ...newState, campaign: { ...newState.campaign, updatedAt: new Date().toISOString() } } };
   };
@@ -48,6 +88,10 @@ function gameReducer(state: State, action: Action): State {
     
     case 'UPDATE_CAMPAIGN':
       return pushHistory({ ...current, campaign: { ...current.campaign, ...action.payload } });
+
+    case 'UPDATE_PREFERENCES':
+      // Don't clutter history with preference toggles
+      return pushHistory({ ...current, preferences: { ...current.preferences!, ...action.payload } }, true);
 
     case 'ADD_MODIFIER':
       return pushHistory({ ...current, modifiers: [...current.modifiers, action.payload] });
@@ -79,10 +123,34 @@ function gameReducer(state: State, action: Action): State {
         combats: current.combats.map(c => c.id === action.payload.id ? { ...c, ...action.payload } : c)
       });
 
+    case 'ADD_COMBAT_ACTION':
+      return pushHistory({
+        ...current,
+        combats: current.combats.map(c => {
+          if (c.id !== action.payload.combatId) return c;
+          const targetRoundIndex = (c.rounds || []).findIndex(r => r.round === action.payload.action.round);
+          
+          let newRounds = [...(c.rounds || [])];
+          if (targetRoundIndex >= 0) {
+            newRounds[targetRoundIndex] = {
+              ...newRounds[targetRoundIndex],
+              actions: [action.payload.action, ...newRounds[targetRoundIndex].actions]
+            };
+          } else {
+            newRounds = [{ round: action.payload.action.round, actions: [action.payload.action] }, ...newRounds];
+          }
+          
+          return {
+            ...c,
+            rounds: newRounds
+          };
+        })
+      });
+
     case 'END_COMBAT':
       return pushHistory({
         ...current,
-        combats: current.combats.map(c => c.id === action.payload ? { ...c, active: false } : c)
+        combats: current.combats.map(c => c.id === action.payload ? { ...c, active: false, endedAt: new Date().toISOString() } : c)
       });
 
     default:
@@ -104,7 +172,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     present: initialGameState
   });
 
-  // Load from local storage on mount
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -119,7 +186,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Save to local storage on change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.present));
   }, [state.present]);

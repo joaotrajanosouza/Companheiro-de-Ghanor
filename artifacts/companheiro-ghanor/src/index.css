@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Eczar:ital,wght@0,400..800;1,400..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -42,42 +42,44 @@
 }
 
 :root {
-  /* Very dark warm gray/brown for background */
-  --background: 24 9.8% 10%; 
-  /* Warm off-white for text */
-  --foreground: 60 4.8% 95.9%;
+  /* Rich, dark leather / parchment base */
+  --background: 28 24% 10%; 
+  /* Warm off-white for text (aged parchment color) */
+  --foreground: 40 40% 86%;
   
-  /* Lighter dark brown for borders */
-  --border: 24 5.7% 26.1%;
+  /* Medium leather for borders */
+  --border: 28 20% 22%;
   
-  /* Dark leather/wood for cards */
-  --card: 24 5.4% 15.3%;
-  --card-foreground: 60 4.8% 95.9%;
-  --card-border: 24 5.7% 20%;
+  /* Distinct floating card layer */
+  --card: 28 18% 14%;
+  --card-foreground: 40 40% 86%;
+  --card-border: 28 20% 26%;
   
-  /* Deep Blood Red for primary */
-  --primary: 0 100% 27%;
-  --primary-foreground: 0 0% 100%;
+  /* Blood red / crimson for primary actions */
+  --primary: 355 70% 36%;
+  --primary-foreground: 40 40% 90%;
   
-  /* Dark brown secondary */
-  --secondary: 24 5.7% 26.1%;
-  --secondary-foreground: 60 4.8% 95.9%;
+  /* Dark inset leather for secondary */
+  --secondary: 28 24% 18%;
+  --secondary-foreground: 40 40% 86%;
   
-  --muted: 24 5.4% 15.3%;
-  --muted-foreground: 24 5.7% 60%;
+  --muted: 28 20% 16%;
+  --muted-foreground: 40 20% 64%;
   
-  /* Gold/Brass for accents */
-  --accent: 38 92% 43.9%;
-  --accent-foreground: 24 9.8% 10%;
+  /* Gold / brass for accents */
+  --accent: 42 76% 48%;
+  --accent-foreground: 28 24% 10%;
   
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 60 4.8% 95.9%;
+  --destructive: 0 74% 42%;
+  --destructive-foreground: 40 40% 90%;
 
-  --input: 24 5.7% 26.1%;
-  --ring: 0 100% 27%;
+  --input: 28 24% 18%;
+  --ring: 355 70% 36%;
 
-  --app-font-sans: 'DM Sans', sans-serif;
-  --app-font-serif: 'Fraunces', serif;
+  /* Fonts: Eczar for expressive UI text, Crimson Pro for story text/serifs */
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: 'Eczar', serif;
+  
   --radius: 0.5rem;
 }
 
@@ -87,11 +89,24 @@
   }
   body {
     @apply font-sans antialiased bg-background text-foreground selection:bg-primary/30 selection:text-primary-foreground;
-    /* Textured noise overlay for atmosphere */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    /* Richer noise overlay */
+    background-image: 
+      radial-gradient(circle at 50% 0%, hsla(28, 20%, 20%, 0.4) 0%, transparent 70%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+    background-attachment: fixed;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif tracking-tight;
+    @apply font-serif tracking-tight text-accent;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  /* Inputs and cards look sunken/raised */
+  .game-surface-sunken {
+    @apply bg-background border border-border shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)];
+  }
+  
+  .game-surface-raised {
+    @apply bg-card border border-card-border shadow-[0_4px_12px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.05)];
   }
 }

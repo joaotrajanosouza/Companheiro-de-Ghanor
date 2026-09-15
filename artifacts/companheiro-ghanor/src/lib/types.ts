@@ -57,7 +57,7 @@ export type Campaign = {
 export type TestRecord = {
   id: string;
   timestamp: string;
-  type: string; // e.g. "Teste de Força", "Teste de Habilidade"
+  type: string;
   die1: number;
   die2: number;
   attributeValue: number;
@@ -75,11 +75,35 @@ export type Enemy = {
   attackModifier: number;
 };
 
+export type CombatActionKind = 'attack' | 'magic' | 'damage' | 'heal' | 'note' | 'enemy_added' | 'roll' | 'round_advance';
+
+export type CombatAction = {
+  id: string;
+  timestamp: string;
+  round: number;
+  actor: string;
+  target: string;
+  kind: CombatActionKind;
+  dice?: [number, number];
+  modifiers?: string[];
+  total?: number;
+  resultText: string;
+  pvChange?: number;
+};
+
+export type CombatRound = {
+  round: number;
+  actions: CombatAction[];
+};
+
 export type Combat = {
   id: string;
+  startedAt?: string;
+  endedAt?: string;
   round: number;
   enemies: Enemy[];
-  history: string[];
+  rounds?: CombatRound[]; // optional for legacy
+  history: string[]; // Legacy
   active: boolean;
 };
 
@@ -93,6 +117,11 @@ export type JournalEntry = {
   important: boolean;
 };
 
+export type Preferences = {
+  muteAudio: boolean;
+  disableAnimations: boolean;
+};
+
 export type GameState = {
   campaign: Campaign;
   character: Character;
@@ -100,4 +129,5 @@ export type GameState = {
   tests: TestRecord[];
   combats: Combat[];
   journal: JournalEntry[];
+  preferences?: Preferences;
 };
