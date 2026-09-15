@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap');
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* Very dark warm gray/brown for background */
+  --background: 24 9.8% 10%; 
+  /* Warm off-white for text */
+  --foreground: 60 4.8% 95.9%;
+  
+  /* Lighter dark brown for borders */
+  --border: 24 5.7% 26.1%;
+  
+  /* Dark leather/wood for cards */
+  --card: 24 5.4% 15.3%;
+  --card-foreground: 60 4.8% 95.9%;
+  --card-border: 24 5.7% 20%;
+  
+  /* Deep Blood Red for primary */
+  --primary: 0 100% 27%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Dark brown secondary */
+  --secondary: 24 5.7% 26.1%;
+  --secondary-foreground: 60 4.8% 95.9%;
+  
+  --muted: 24 5.4% 15.3%;
+  --muted-foreground: 24 5.7% 60%;
+  
+  /* Gold/Brass for accents */
+  --accent: 38 92% 43.9%;
+  --accent-foreground: 24 9.8% 10%;
+  
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 4.8% 95.9%;
+
+  --input: 24 5.7% 26.1%;
+  --ring: 0 100% 27%;
+
+  --app-font-sans: 'DM Sans', sans-serif;
+  --app-font-serif: 'Fraunces', serif;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground selection:bg-primary/30 selection:text-primary-foreground;
+    /* Textured noise overlay for atmosphere */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
+}

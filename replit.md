@@ -1,6 +1,6 @@
-# [Project name]
+# Companheiro de Ghanor
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+SPA offline para acompanhar uma jornada em A Coroa de Ghanor com ficha, dados físicos, modificadores, combate e diário.
 
 ## Run & Operate
 
@@ -30,11 +30,13 @@ _Populate as you build — non-obvious choices a reader couldn't infer from the 
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Ficha e recursos do personagem, inventário, perícias e modificadores.
+- Assistentes de testes e combate com resultados informados a partir de dados físicos.
+- Diário por páginas, histórico, desfazer, salvamento local e importação/exportação JSON.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Não incluir rolador digital ou geração aleatória de resultados; o jogador usa dados físicos.
 
 ## Gotchas
 

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Companheiro de Ghanor"
+description = "Ficha digital e assistente offline para acompanhar jornadas no livro-jogo A Coroa de Ghanor, com testes usando dados físicos, modificadores, combate, inventário e diário."
+version = "1.0.0"
+id = "artifacts/companheiro-ghanor"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21418
+
+[services.development]
+run = "pnpm --filter @workspace/companheiro-ghanor run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/companheiro-ghanor", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/companheiro-ghanor/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21418"
+BASE_PATH = "/"
