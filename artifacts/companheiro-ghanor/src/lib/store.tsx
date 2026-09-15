@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useReducer, ReactNode } from 'react';
-import { GameState, JournalEntry, Modifier, TestRecord, Combat, Character, Campaign, Preferences, CombatAction, CombatRound } from './types';
+import { GameState, JournalEntry, Modifier, TestRecord, Combat, Character, Campaign, Preferences, CombatAction, PageFavorite } from './types';
 import { initialGameState } from './initial-data';
 
 export type Action =
@@ -8,6 +8,9 @@ export type Action =
   | { type: 'UPDATE_CHARACTER'; payload: Partial<Character> }
   | { type: 'UPDATE_CAMPAIGN'; payload: Partial<Campaign> }
   | { type: 'CLEAR_PAGE_HISTORY' }
+  | { type: 'ADD_PAGE_FAVORITE'; payload: PageFavorite }
+  | { type: 'UPDATE_PAGE_FAVORITE'; payload: Pick<PageFavorite, 'id' | 'name'> }
+  | { type: 'REMOVE_PAGE_FAVORITE'; payload: string }
   | { type: 'UPDATE_PREFERENCES'; payload: Partial<Preferences> }
   | { type: 'ADD_MODIFIER'; payload: Modifier }
   | { type: 'UPDATE_MODIFIER'; payload: Partial<Modifier> & { id: string } }
@@ -40,6 +43,16 @@ export function normalizeState(state: GameState, now = new Date().toISOString())
     campaign: {
       ...state.campaign,
       pageHistory: pageHistory.slice(-MAX_PAGE_HISTORY),
+      pageFavorites: Array.isArray(state.campaign.pageFavorites)
+        ? state.campaign.pageFavorites.filter(favorite =>
+            typeof favorite?.id === 'string'
+            && favorite.id.length > 0
+            && Number.isInteger(favorite.page)
+            && favorite.page > 0
+            && typeof favorite.name === 'string'
+            && favorite.name.trim().length > 0
+          ).map(favorite => ({ ...favorite, name: favorite.name.trim() }))
+        : [],
     },
     preferences: state.preferences ?? { muteAudio: false, disableAnimations: false },
     combats: (state.combats ?? []).map(c => {
@@ -112,6 +125,37 @@ export function gameReducer(state: StoreState, action: Action): StoreState {
       return pushHistory({
         ...current,
         campaign: { ...current.campaign, pageHistory: [current.campaign.currentPage] },
+      });
+
+    case 'ADD_PAGE_FAVORITE':
+      return pushHistory({
+        ...current,
+        campaign: {
+          ...current.campaign,
+          pageFavorites: [...(current.campaign.pageFavorites ?? []), action.payload],
+        },
+      });
+
+    case 'UPDATE_PAGE_FAVORITE':
+      return pushHistory({
+        ...current,
+        campaign: {
+          ...current.campaign,
+          pageFavorites: (current.campaign.pageFavorites ?? []).map(favorite =>
+            favorite.id === action.payload.id
+              ? { ...favorite, name: action.payload.name.trim() }
+              : favorite
+          ),
+        },
+      });
+
+    case 'REMOVE_PAGE_FAVORITE':
+      return pushHistory({
+        ...current,
+        campaign: {
+          ...current.campaign,
+          pageFavorites: (current.campaign.pageFavorites ?? []).filter(favorite => favorite.id !== action.payload),
+        },
       });
 
     case 'UPDATE_PREFERENCES':

@@ -45,12 +45,19 @@ export type Character = {
   notes: string;
 };
 
+export type PageFavorite = {
+  id: string;
+  page: number;
+  name: string;
+};
+
 export type Campaign = {
   version: number;
   id: string;
   name: string;
   currentPage: number;
   pageHistory?: number[];
+  pageFavorites?: PageFavorite[];
   createdAt: string;
   updatedAt: string;
 };

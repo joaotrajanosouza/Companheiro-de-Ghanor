@@ -4,16 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Zap, Coins, ArrowRight, Dices, Sword, BookOpen, Shield, BookMarked, History, Trash2 } from "lucide-react";
+import { Heart, Zap, Coins, ArrowRight, Dices, Sword, BookOpen, Shield, BookMarked, History, Trash2, Pencil, BookmarkPlus, Check, X } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Dashboard() {
   const { state, dispatch } = useGame();
   const { character, campaign } = state;
   const [pageInput, setPageInput] = useState(String(campaign.currentPage));
+  const [favoriteName, setFavoriteName] = useState("");
+  const [editingFavoriteId, setEditingFavoriteId] = useState<string | null>(null);
+  const [editingFavoriteName, setEditingFavoriteName] = useState("");
   const parsedPage = Number(pageInput);
   const isValidPage = pageInput.trim() !== "" && Number.isInteger(parsedPage) && parsedPage > 0;
   const pageHistory = campaign.pageHistory ?? [campaign.currentPage];
+  const pageFavorites = campaign.pageFavorites ?? [];
 
   useEffect(() => {
     setPageInput(String(campaign.currentPage));
@@ -23,6 +27,31 @@ export default function Dashboard() {
     event.preventDefault();
     if (!isValidPage) return;
     dispatch({ type: "UPDATE_CAMPAIGN", payload: { currentPage: parsedPage } });
+  };
+
+  const addFavorite = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const name = favoriteName.trim();
+    if (!name) return;
+    dispatch({
+      type: "ADD_PAGE_FAVORITE",
+      payload: { id: crypto.randomUUID(), page: campaign.currentPage, name },
+    });
+    setFavoriteName("");
+  };
+
+  const startEditingFavorite = (id: string, name: string) => {
+    setEditingFavoriteId(id);
+    setEditingFavoriteName(name);
+  };
+
+  const saveFavoriteName = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const name = editingFavoriteName.trim();
+    if (!editingFavoriteId || !name) return;
+    dispatch({ type: "UPDATE_PAGE_FAVORITE", payload: { id: editingFavoriteId, name } });
+    setEditingFavoriteId(null);
+    setEditingFavoriteName("");
   };
 
   return (
@@ -110,6 +139,86 @@ export default function Dashboard() {
               </Button>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="game-surface-raised border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <BookMarked className="h-5 w-5 text-primary" />
+            Páginas favoritas
+          </CardTitle>
+          <CardDescription>Crie atalhos com nomes curtos para páginas importantes.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={addFavorite} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="favorite-name">Nome para a página {campaign.currentPage}</Label>
+              <Input
+                id="favorite-name"
+                value={favoriteName}
+                onChange={(event) => setFavoriteName(event.target.value)}
+                placeholder="Ex.: Regras de combate"
+                maxLength={60}
+              />
+            </div>
+            <Button type="submit" disabled={!favoriteName.trim()} className="shrink-0">
+              <BookmarkPlus className="mr-2 h-4 w-4" />
+              Favoritar página atual
+            </Button>
+          </form>
+
+          {pageFavorites.length > 0 ? (
+            <div className="space-y-2" aria-label="Páginas favoritas">
+              {pageFavorites.map((favorite) => (
+                <div key={favorite.id} className="flex flex-col gap-2 rounded-lg border border-border bg-background/40 p-3 sm:flex-row sm:items-center">
+                  {editingFavoriteId === favorite.id ? (
+                    <form onSubmit={saveFavoriteName} className="flex flex-1 gap-2">
+                      <Input
+                        value={editingFavoriteName}
+                        onChange={(event) => setEditingFavoriteName(event.target.value)}
+                        maxLength={60}
+                        aria-label={`Novo nome para ${favorite.name}`}
+                        autoFocus
+                      />
+                      <Button type="submit" size="icon" disabled={!editingFavoriteName.trim()} aria-label="Salvar novo nome">
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button type="button" size="icon" variant="ghost" onClick={() => setEditingFavoriteId(null)} aria-label="Cancelar edição">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </form>
+                  ) : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-auto min-w-0 flex-1 justify-start px-2 py-1 text-left"
+                        onClick={() => dispatch({ type: "UPDATE_CAMPAIGN", payload: { currentPage: favorite.page } })}
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate font-semibold">{favorite.name}</span>
+                          <span className="block text-xs text-muted-foreground">Página {favorite.page}</span>
+                        </span>
+                      </Button>
+                      <div className="flex justify-end gap-1">
+                        <Button type="button" size="icon" variant="ghost" onClick={() => startEditingFavorite(favorite.id, favorite.name)} aria-label={`Renomear ${favorite.name}`}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button type="button" size="icon" variant="ghost" className="text-muted-foreground hover:text-destructive" onClick={() => dispatch({ type: "REMOVE_PAGE_FAVORITE", payload: favorite.id })} aria-label={`Remover ${favorite.name}`}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-lg border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+              Nenhuma página favorita ainda.
+            </p>
+          )}
         </CardContent>
       </Card>
 
