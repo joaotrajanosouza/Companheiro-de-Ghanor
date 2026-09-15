@@ -50,6 +50,7 @@ export type Campaign = {
   id: string;
   name: string;
   currentPage: number;
+  pageHistory?: number[];
   createdAt: string;
   updatedAt: string;
 };

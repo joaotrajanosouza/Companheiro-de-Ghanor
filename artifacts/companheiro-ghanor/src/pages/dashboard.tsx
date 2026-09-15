@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Zap, Coins, ArrowRight, Dices, Sword, BookOpen, Shield, BookMarked } from "lucide-react";
+import { Heart, Zap, Coins, ArrowRight, Dices, Sword, BookOpen, Shield, BookMarked, History, Trash2 } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Dashboard() {
@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [pageInput, setPageInput] = useState(String(campaign.currentPage));
   const parsedPage = Number(pageInput);
   const isValidPage = pageInput.trim() !== "" && Number.isInteger(parsedPage) && parsedPage > 0;
+  const pageHistory = campaign.pageHistory ?? [campaign.currentPage];
 
   useEffect(() => {
     setPageInput(String(campaign.currentPage));
@@ -72,6 +73,45 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
+
+      <Card className="game-surface-raised border-primary/20">
+        <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <History className="h-5 w-5 text-primary" />
+              Páginas recentes
+            </CardTitle>
+            <CardDescription className="mt-1">Toque em uma página para voltar até ela.</CardDescription>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => dispatch({ type: "CLEAR_PAGE_HISTORY" })}
+            disabled={pageHistory.length <= 1}
+            className="shrink-0 text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Limpar
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2" aria-label="Histórico de páginas visitadas">
+            {pageHistory.map((page, index) => (
+              <Button
+                key={`${page}-${index}`}
+                type="button"
+                size="sm"
+                variant={page === campaign.currentPage && index === pageHistory.length - 1 ? "default" : "outline"}
+                onClick={() => dispatch({ type: "UPDATE_CAMPAIGN", payload: { currentPage: page } })}
+                aria-current={page === campaign.currentPage && index === pageHistory.length - 1 ? "page" : undefined}
+              >
+                Página {page}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="game-surface-raised border-b-4 border-b-destructive/60 hover:-translate-y-1 transition-transform">

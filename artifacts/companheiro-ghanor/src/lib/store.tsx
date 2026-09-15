@@ -7,6 +7,7 @@ export type Action =
   | { type: 'UNDO' }
   | { type: 'UPDATE_CHARACTER'; payload: Partial<Character> }
   | { type: 'UPDATE_CAMPAIGN'; payload: Partial<Campaign> }
+  | { type: 'CLEAR_PAGE_HISTORY' }
   | { type: 'UPDATE_PREFERENCES'; payload: Partial<Preferences> }
   | { type: 'ADD_MODIFIER'; payload: Modifier }
   | { type: 'UPDATE_MODIFIER'; payload: Partial<Modifier> & { id: string } }
@@ -24,10 +25,22 @@ export type StoreState = {
 };
 
 const MAX_HISTORY = 10;
+const MAX_PAGE_HISTORY = 12;
 
 export function normalizeState(state: GameState, now = new Date().toISOString()): GameState {
+  const savedPageHistory = Array.isArray(state.campaign.pageHistory)
+    ? state.campaign.pageHistory.filter(page => Number.isInteger(page) && page > 0)
+    : [];
+  const pageHistory = savedPageHistory.at(-1) === state.campaign.currentPage
+    ? savedPageHistory
+    : [...savedPageHistory, state.campaign.currentPage];
+
   return {
     ...state,
+    campaign: {
+      ...state.campaign,
+      pageHistory: pageHistory.slice(-MAX_PAGE_HISTORY),
+    },
     preferences: state.preferences ?? { muteAudio: false, disableAnimations: false },
     combats: (state.combats ?? []).map(c => {
       const startedAt = c.startedAt ?? now;
@@ -82,7 +95,24 @@ export function gameReducer(state: StoreState, action: Action): StoreState {
       return pushHistory({ ...current, character: { ...current.character, ...action.payload } });
     
     case 'UPDATE_CAMPAIGN':
-      return pushHistory({ ...current, campaign: { ...current.campaign, ...action.payload } });
+      {
+        const currentPage = action.payload.currentPage;
+        const existingPageHistory = current.campaign.pageHistory ?? [current.campaign.currentPage];
+        const pageHistory = currentPage !== undefined && existingPageHistory.at(-1) !== currentPage
+          ? [...existingPageHistory, currentPage].slice(-MAX_PAGE_HISTORY)
+          : existingPageHistory;
+
+        return pushHistory({
+          ...current,
+          campaign: { ...current.campaign, ...action.payload, pageHistory },
+        });
+      }
+
+    case 'CLEAR_PAGE_HISTORY':
+      return pushHistory({
+        ...current,
+        campaign: { ...current.campaign, pageHistory: [current.campaign.currentPage] },
+      });
 
     case 'UPDATE_PREFERENCES':
       // Don't clutter history with preference toggles
