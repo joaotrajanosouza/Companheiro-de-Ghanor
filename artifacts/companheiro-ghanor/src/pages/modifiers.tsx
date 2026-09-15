@@ -54,6 +54,24 @@ export default function Modifiers() {
     return true;
   });
 
+  const targetLabel = (target: TargetType) => {
+    if (target.startsWith("atributo:")) {
+      const attribute = state.character.customAttributes.find(
+        item => item.id === target.slice("atributo:".length),
+      );
+      return attribute?.name ?? "Atributo removido";
+    }
+    const labels: Record<string, string> = {
+      ataque: "Ataque",
+      dano: "Dano",
+      forca: "Força",
+      habilidade: "Habilidade",
+      iniciativa: "Iniciativa",
+      qualquer: "Qualquer",
+    };
+    return labels[target] ?? target;
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
@@ -99,6 +117,15 @@ export default function Modifiers() {
                   <option value="habilidade">Habilidade</option>
                   <option value="iniciativa">Iniciativa</option>
                   <option value="qualquer">Qualquer</option>
+                  {state.character.customAttributes.length > 0 && (
+                    <optgroup label="Atributos personalizados">
+                      {state.character.customAttributes.map(attribute => (
+                        <option key={attribute.id} value={`atributo:${attribute.id}`}>
+                          {attribute.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
               </div>
               <div className="space-y-2">
@@ -148,7 +175,7 @@ export default function Modifiers() {
                   </Badge>
                 </div>
                 <div className="text-sm text-muted-foreground capitalize flex gap-2">
-                  <span>Alvo: {mod.target}</span> • <span>Duração: {mod.durationType}</span>
+                  <span>Alvo: {targetLabel(mod.target)}</span> • <span>Duração: {mod.durationType}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">

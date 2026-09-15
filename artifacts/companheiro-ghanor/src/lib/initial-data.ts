@@ -44,6 +44,7 @@ export const initialGameState: GameState = {
         consumable: true,
       }
     ],
+    customAttributes: [],
     notes: 'Criado no mosteiro de São Arnaldo, treinado pelo prior.',
   },
   modifiers: [

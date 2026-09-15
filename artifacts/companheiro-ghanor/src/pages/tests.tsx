@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,15 +12,36 @@ export default function Tests() {
   
   const [die1, setDie1] = useState<number | "">("");
   const [die2, setDie2] = useState<number | "">("");
-  const [attr, setAttr] = useState<"forca" | "habilidade">("forca");
+  const [attr, setAttr] = useState<string>("forca");
   const [selectedMods, setSelectedMods] = useState<string[]>([]);
   
-  // Calculate total
-  const attrValue = state.character[attr];
+  const customAttribute = state.character.customAttributes.find(attribute => attribute.id === attr);
+  const attributeName = attr === "forca"
+    ? "Força"
+    : attr === "habilidade"
+      ? "Habilidade"
+      : customAttribute?.name ?? "Força";
+  const attrValue = attr === "forca"
+    ? state.character.forca
+    : attr === "habilidade"
+      ? state.character.habilidade
+      : customAttribute?.value ?? state.character.forca;
+  const modifierTarget = attr === "forca" || attr === "habilidade"
+    ? attr
+    : `atributo:${attr}`;
   const d1Val = typeof die1 === "number" ? die1 : 0;
   const d2Val = typeof die2 === "number" ? die2 : 0;
   
-  const applicableMods = state.modifiers.filter(m => m.active && (m.target === attr || m.target === "qualquer"));
+  const applicableMods = state.modifiers.filter(
+    modifier => modifier.active && (modifier.target === modifierTarget || modifier.target === "qualquer"),
+  );
+
+  useEffect(() => {
+    if (attr !== "forca" && attr !== "habilidade" && !customAttribute) {
+      setAttr("forca");
+      setSelectedMods([]);
+    }
+  }, [attr, customAttribute]);
   
   const modsTotal = selectedMods.reduce((acc, id) => {
     const mod = state.modifiers.find(m => m.id === id);
@@ -38,6 +59,11 @@ export default function Tests() {
     }
   };
 
+  const selectAttribute = (attributeId: string) => {
+    setAttr(attributeId);
+    setSelectedMods([]);
+  };
+
   const handleSaveTest = (success: boolean) => {
     if (!isComplete) return;
     dispatch({
@@ -45,7 +71,8 @@ export default function Tests() {
       payload: {
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
-        type: `Teste de ${attr === "forca" ? "Força" : "Habilidade"}`,
+        type: `Teste de ${attributeName}`,
+        attributeName,
         die1: d1Val,
         die2: d2Val,
         attributeValue: attrValue,
@@ -68,21 +95,31 @@ export default function Tests() {
         <CardContent className="pt-6 space-y-6">
           <div className="space-y-2">
             <Label className="text-lg">Atributo Testado</Label>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-3">
               <Button 
                 variant={attr === "forca" ? "default" : "outline"} 
-                className="flex-1"
-                onClick={() => setAttr("forca")}
+                className="min-w-36 flex-1"
+                onClick={() => selectAttribute("forca")}
               >
                 Força ({state.character.forca})
               </Button>
               <Button 
                 variant={attr === "habilidade" ? "default" : "outline"} 
-                className="flex-1"
-                onClick={() => setAttr("habilidade")}
+                className="min-w-36 flex-1"
+                onClick={() => selectAttribute("habilidade")}
               >
                 Habilidade ({state.character.habilidade})
               </Button>
+              {state.character.customAttributes.map(attribute => (
+                <Button
+                  key={attribute.id}
+                  variant={attr === attribute.id ? "default" : "outline"}
+                  className="min-w-36 flex-1"
+                  onClick={() => selectAttribute(attribute.id)}
+                >
+                  {attribute.name} ({attribute.value})
+                </Button>
+              ))}
             </div>
           </div>
 

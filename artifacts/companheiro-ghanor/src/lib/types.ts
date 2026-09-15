@@ -1,5 +1,7 @@
 export type DurationType = 'permanente' | 'combate' | 'rodada' | 'pagina' | 'usos' | 'manual' | 'instantaneo';
-export type TargetType = 'forca' | 'habilidade' | 'ataque' | 'iniciativa' | 'dano' | 'qualquer';
+export type BuiltInTargetType = 'forca' | 'habilidade' | 'ataque' | 'iniciativa' | 'dano' | 'qualquer';
+export type CustomAttributeTarget = `atributo:${string}`;
+export type TargetType = BuiltInTargetType | CustomAttributeTarget;
 
 export type Modifier = {
   id: string;
@@ -31,6 +33,12 @@ export type InventoryItem = {
   consumable: boolean;
 };
 
+export type CustomAttribute = {
+  id: string;
+  name: string;
+  value: number;
+};
+
 export type Character = {
   name: string;
   forca: number;
@@ -42,6 +50,7 @@ export type Character = {
   dinheiro: number;
   skills: Skill[];
   inventory: InventoryItem[];
+  customAttributes: CustomAttribute[];
   notes: string;
 };
 
@@ -66,6 +75,7 @@ export type TestRecord = {
   id: string;
   timestamp: string;
   type: string;
+  attributeName?: string;
   die1: number;
   die2: number;
   attributeValue: number;

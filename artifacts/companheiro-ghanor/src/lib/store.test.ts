@@ -39,13 +39,14 @@ function makeGame(combat = makeCombat()): GameState {
       dinheiro: 0,
       skills: [],
       inventory: [],
+      customAttributes: [],
       notes: '',
     },
     modifiers: [],
     tests: [],
     combats: [combat],
     journal: [],
-    preferences: { muteAudio: false, disableAnimations: false },
+    preferences: { muteAudio: false, disableAnimations: false, colorTheme: 'light' },
   };
 }
 
@@ -165,5 +166,139 @@ describe('histórico estruturado de combate', () => {
 
     assert.deepEqual(imported.combats, original.combats);
     assert.deepEqual(reloaded.combats, original.combats);
+  });
+});
+
+describe('atributos personalizados', () => {
+  it('migra jornadas antigas sem atributos personalizados', () => {
+    const legacy = makeGame();
+    delete (legacy.character as Partial<GameState['character']>).customAttributes;
+
+    const migrated = normalizeState(legacy);
+
+    assert.deepEqual(migrated.character.customAttributes, []);
+  });
+
+  it('normaliza nomes e descarta atributos inválidos ou duplicados', () => {
+    const saved = makeGame();
+    saved.character.customAttributes = [
+      { id: 'coragem', name: ' Coragem ', value: 4 },
+      { id: 'coragem-duplicada', name: 'coragem', value: 8 },
+      { id: 'vazio', name: '   ', value: 2 },
+      { id: 'invalido', name: 'Sorte', value: Number.NaN },
+    ];
+    saved.modifiers = [
+      {
+        id: 'mod-coragem',
+        name: 'Inspiração',
+        description: '',
+        value: 1,
+        origin: 'Manual',
+        target: 'atributo:coragem',
+        durationType: 'permanente',
+        active: true,
+        acquiredPage: 1,
+      },
+      {
+        id: 'mod-invalido',
+        name: 'Sem alvo',
+        description: '',
+        value: 1,
+        origin: 'Manual',
+        target: 'atributo:nao-existe',
+        durationType: 'permanente',
+        active: true,
+        acquiredPage: 1,
+      },
+    ];
+
+    const normalized = normalizeState(saved);
+
+    assert.deepEqual(normalized.character.customAttributes, [
+      { id: 'coragem', name: 'Coragem', value: 4 },
+    ]);
+    assert.deepEqual(normalized.modifiers.map(modifier => modifier.id), ['mod-coragem']);
+  });
+
+  it('impede nomes vazios ou duplicados ao adicionar e renomear', () => {
+    let state: StoreState = { past: [], present: makeGame() };
+    state = reduce(state, {
+      type: 'ADD_CUSTOM_ATTRIBUTE',
+      payload: { id: 'coragem', name: 'Coragem', value: 3 },
+    });
+    const afterValid = state;
+
+    state = reduce(state, {
+      type: 'ADD_CUSTOM_ATTRIBUTE',
+      payload: { id: 'duplicado', name: ' coragem ', value: 9 },
+    });
+    assert.equal(state, afterValid);
+
+    state = reduce(state, {
+      type: 'ADD_CUSTOM_ATTRIBUTE',
+      payload: { id: 'vazio', name: ' ', value: 1 },
+    });
+    assert.equal(state, afterValid);
+
+    state = reduce(state, {
+      type: 'ADD_CUSTOM_ATTRIBUTE',
+      payload: { id: 'sorte', name: 'Sorte', value: 2 },
+    });
+    const beforeDuplicateRename = state;
+    state = reduce(state, {
+      type: 'UPDATE_CUSTOM_ATTRIBUTE',
+      payload: { id: 'sorte', name: ' CORAGEM ' },
+    });
+    assert.equal(state, beforeDuplicateRename);
+
+    state = reduce(state, {
+      type: 'UPDATE_CUSTOM_ATTRIBUTE',
+      payload: { id: 'sorte', name: 'Destino', value: 4 },
+    });
+    assert.deepEqual(state.present.character.customAttributes[1], {
+      id: 'sorte',
+      name: 'Destino',
+      value: 4,
+    });
+  });
+
+  it('remove modificadores associados sem alterar testes já registrados', () => {
+    const game = makeGame();
+    game.character.customAttributes = [{ id: 'coragem', name: 'Coragem', value: 5 }];
+    game.modifiers = [{
+      id: 'mod-coragem',
+      name: 'Inspiração',
+      description: '',
+      value: 2,
+      origin: 'Manual',
+      target: 'atributo:coragem',
+      durationType: 'permanente',
+      active: true,
+      acquiredPage: 1,
+    }];
+    game.tests = [{
+      id: 'teste-coragem',
+      timestamp,
+      type: 'Teste de Coragem',
+      attributeName: 'Coragem',
+      die1: 3,
+      die2: 4,
+      attributeValue: 5,
+      modifierIds: ['mod-coragem'],
+      total: 14,
+      success: true,
+      notes: '',
+    }];
+
+    const result = reduce(
+      { past: [], present: game },
+      { type: 'REMOVE_CUSTOM_ATTRIBUTE', payload: 'coragem' },
+    ).present;
+
+    assert.deepEqual(result.character.customAttributes, []);
+    assert.deepEqual(result.modifiers, []);
+    assert.equal(result.tests[0].type, 'Teste de Coragem');
+    assert.equal(result.tests[0].attributeValue, 5);
+    assert.deepEqual(result.tests[0].modifierIds, ['mod-coragem']);
   });
 });

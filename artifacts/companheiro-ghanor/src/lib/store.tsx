@@ -1,11 +1,14 @@
 import { createContext, useContext, useEffect, useReducer, ReactNode } from 'react';
-import { GameState, JournalEntry, Modifier, TestRecord, Combat, Character, Campaign, Preferences, CombatAction, PageFavorite } from './types';
+import { GameState, JournalEntry, Modifier, TestRecord, Combat, Character, Campaign, Preferences, CombatAction, PageFavorite, CustomAttribute } from './types';
 import { initialGameState } from './initial-data';
 
 export type Action =
   | { type: 'SET_STATE'; payload: GameState }
   | { type: 'UNDO' }
   | { type: 'UPDATE_CHARACTER'; payload: Partial<Character> }
+  | { type: 'ADD_CUSTOM_ATTRIBUTE'; payload: CustomAttribute }
+  | { type: 'UPDATE_CUSTOM_ATTRIBUTE'; payload: Partial<Pick<CustomAttribute, 'name' | 'value'>> & { id: string } }
+  | { type: 'REMOVE_CUSTOM_ATTRIBUTE'; payload: string }
   | { type: 'UPDATE_CAMPAIGN'; payload: Partial<Campaign> }
   | { type: 'CLEAR_PAGE_HISTORY' }
   | { type: 'ADD_PAGE_FAVORITE'; payload: PageFavorite }
@@ -37,6 +40,27 @@ export function normalizeState(state: GameState, now = new Date().toISOString())
   const pageHistory = savedPageHistory.at(-1) === state.campaign.currentPage
     ? savedPageHistory
     : [...savedPageHistory, state.campaign.currentPage];
+  const seenAttributeIds = new Set<string>();
+  const seenAttributeNames = new Set<string>();
+  const customAttributes = Array.isArray(state.character.customAttributes)
+    ? state.character.customAttributes.filter(attribute => {
+        if (
+          typeof attribute?.id !== 'string'
+          || attribute.id.length === 0
+          || typeof attribute.name !== 'string'
+          || attribute.name.trim().length === 0
+          || !Number.isFinite(attribute.value)
+        ) {
+          return false;
+        }
+        const normalizedName = attribute.name.trim().toLocaleLowerCase('pt-BR');
+        if (seenAttributeIds.has(attribute.id) || seenAttributeNames.has(normalizedName)) return false;
+        seenAttributeIds.add(attribute.id);
+        seenAttributeNames.add(normalizedName);
+        return true;
+      }).map(attribute => ({ ...attribute, name: attribute.name.trim() }))
+    : [];
+  const customAttributeIds = new Set(customAttributes.map(attribute => attribute.id));
 
   return {
     ...state,
@@ -54,12 +78,20 @@ export function normalizeState(state: GameState, now = new Date().toISOString())
           ).map(favorite => ({ ...favorite, name: favorite.name.trim() }))
         : [],
     },
+    character: {
+      ...state.character,
+      customAttributes,
+    },
     preferences: {
       muteAudio: false,
       disableAnimations: false,
       colorTheme: 'light',
       ...state.preferences,
     },
+    modifiers: (state.modifiers ?? []).filter(modifier =>
+      !modifier.target.startsWith('atributo:')
+      || customAttributeIds.has(modifier.target.slice('atributo:'.length))
+    ),
     combats: (state.combats ?? []).map(c => {
       const startedAt = c.startedAt ?? now;
       const history = c.history ?? [];
@@ -111,6 +143,64 @@ export function gameReducer(state: StoreState, action: Action): StoreState {
   switch (action.type) {
     case 'UPDATE_CHARACTER':
       return pushHistory({ ...current, character: { ...current.character, ...action.payload } });
+
+    case 'ADD_CUSTOM_ATTRIBUTE':
+      if (
+        action.payload.name.trim().length === 0
+        || !Number.isFinite(action.payload.value)
+        || current.character.customAttributes.some(attribute =>
+          attribute.name.toLocaleLowerCase('pt-BR')
+            === action.payload.name.trim().toLocaleLowerCase('pt-BR')
+        )
+      ) {
+        return state;
+      }
+      return pushHistory({
+        ...current,
+        character: {
+          ...current.character,
+          customAttributes: [...current.character.customAttributes, {
+            ...action.payload,
+            name: action.payload.name.trim(),
+          }],
+        },
+      });
+
+    case 'UPDATE_CUSTOM_ATTRIBUTE':
+      if (
+        (action.payload.name !== undefined && (
+          action.payload.name.trim().length === 0
+          || current.character.customAttributes.some(attribute =>
+            attribute.id !== action.payload.id
+            && attribute.name.toLocaleLowerCase('pt-BR')
+              === action.payload.name!.trim().toLocaleLowerCase('pt-BR')
+          )
+        ))
+        || (action.payload.value !== undefined && !Number.isFinite(action.payload.value))
+      ) {
+        return state;
+      }
+      return pushHistory({
+        ...current,
+        character: {
+          ...current.character,
+          customAttributes: current.character.customAttributes.map(attribute =>
+            attribute.id === action.payload.id
+              ? { ...attribute, ...action.payload, name: action.payload.name?.trim() ?? attribute.name }
+              : attribute
+          ),
+        },
+      });
+
+    case 'REMOVE_CUSTOM_ATTRIBUTE':
+      return pushHistory({
+        ...current,
+        character: {
+          ...current.character,
+          customAttributes: current.character.customAttributes.filter(attribute => attribute.id !== action.payload),
+        },
+        modifiers: current.modifiers.filter(modifier => modifier.target !== `atributo:${action.payload}`),
+      });
     
     case 'UPDATE_CAMPAIGN':
       {
