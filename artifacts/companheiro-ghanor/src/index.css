@@ -42,41 +42,40 @@
 }
 
 :root {
-  /* Rich, dark leather / parchment base */
-  --background: 28 24% 10%; 
-  /* Warm off-white for text (aged parchment color) */
-  --foreground: 40 40% 86%;
+  /* Sunlit parchment base */
+  --background: 42 35% 93%;
+  /* Deep ink-brown shadows */
+  --foreground: 24 36% 12%;
   
-  /* Medium leather for borders */
-  --border: 28 20% 22%;
+  /* Medium parchment/dusty road for borders */
+  --border: 36 30% 77%;
   
-  /* Distinct floating card layer */
-  --card: 28 18% 14%;
-  --card-foreground: 40 40% 86%;
-  --card-border: 28 20% 26%;
+  /* Dusty roads floating card layer */
+  --card: 42 33% 86%;
+  --card-foreground: 24 36% 12%;
+  --card-border: 36 30% 77%;
   
-  /* Blood red / crimson for primary actions */
-  --primary: 355 70% 36%;
-  --primary-foreground: 40 40% 90%;
+  /* Burnt orange terrain for primary actions */
+  --primary: 20 70% 43%;
+  --primary-foreground: 42 35% 96%; /* Cream lettering */
   
-  /* Dark inset leather for secondary */
-  --secondary: 28 24% 18%;
-  --secondary-foreground: 40 40% 86%;
+  /* Restrained olive countryside for secondary */
+  --secondary: 75 24% 35%;
+  --secondary-foreground: 42 35% 96%;
   
-  --muted: 28 20% 16%;
-  --muted-foreground: 40 20% 64%;
+  --muted: 36 30% 77%;
+  --muted-foreground: 32 22% 35%;
   
-  /* Gold / brass for accents */
-  --accent: 42 76% 48%;
-  --accent-foreground: 28 24% 10%;
+  /* Aged gold / Bronze for accents */
+  --accent: 43 65% 35%;
+  --accent-foreground: 42 35% 96%;
   
-  --destructive: 0 74% 42%;
-  --destructive-foreground: 40 40% 90%;
+  --destructive: 5 60% 41%;
+  --destructive-foreground: 42 35% 96%;
 
-  --input: 28 24% 18%;
-  --ring: 355 70% 36%;
+  --input: 42 35% 93%;
+  --ring: 20 70% 43%;
 
-  /* Fonts: Eczar for expressive UI text, Crimson Pro for story text/serifs */
   --app-font-sans: 'Inter', sans-serif;
   --app-font-serif: 'Eczar', serif;
   
@@ -88,25 +87,25 @@
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground selection:bg-primary/30 selection:text-primary-foreground;
-    /* Richer noise overlay */
+    @apply font-sans antialiased bg-background text-foreground selection:bg-primary/30 selection:text-foreground;
+    /* Soft warm noise overlay for parchment feel */
     background-image: 
-      radial-gradient(circle at 50% 0%, hsla(28, 20%, 20%, 0.4) 0%, transparent 70%),
+      radial-gradient(circle at 50% 0%, hsla(43, 65%, 50%, 0.12) 0%, transparent 70%),
       url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
     background-attachment: fixed;
   }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif tracking-tight text-accent;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 2px rgba(43,29,20,0.1);
   }
 
   /* Inputs and cards look sunken/raised */
   .game-surface-sunken {
-    @apply bg-background border border-border shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)];
+    @apply bg-background border border-border shadow-[inset_0_2px_4px_rgba(43,29,20,0.06)];
   }
   
   .game-surface-raised {
-    @apply bg-card border border-card-border shadow-[0_4px_12px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.05)];
+    @apply bg-card border border-card-border shadow-[0_4px_12px_rgba(43,29,20,0.06),inset_0_1px_0_rgba(255,255,255,0.4)];
   }
 }

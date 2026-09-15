@@ -78,7 +78,7 @@ export default function Character() {
                 </div>
 
                 <div className="space-y-2 border border-border p-4 rounded-lg bg-background text-center">
-                  <Zap className="h-5 w-5 text-blue-500 mx-auto mb-1" />
+                  <Zap className="h-5 w-5 text-sky-700 mx-auto mb-1" />
                   <Label className="text-xs uppercase text-muted-foreground">Magia (PM)</Label>
                   <div className="flex items-center justify-center gap-2">
                     <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => handleStatChange("pmAtual", -1)}>-</Button>
@@ -110,7 +110,7 @@ export default function Character() {
               </div>
 
               <div className="flex items-center gap-4 bg-background p-4 rounded-lg border border-border">
-                <Coins className="h-6 w-6 text-yellow-500" />
+                <Coins className="h-6 w-6 text-amber-600" />
                 <Label className="uppercase text-muted-foreground">Peças de Ouro</Label>
                 <div className="ml-auto flex items-center gap-2">
                   <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleStatChange("dinheiro", -1)}>-</Button>

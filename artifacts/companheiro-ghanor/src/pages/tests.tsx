@@ -149,7 +149,7 @@ export default function Tests() {
               </Button>
               <Button 
                 variant="default" 
-                className="flex-1 h-14 bg-green-700 hover:bg-green-600 text-white"
+                className="flex-1 h-14 bg-emerald-700 hover:bg-emerald-600 text-white"
                 onClick={() => handleSaveTest(true)}
               >
                 <CheckCircle className="h-5 w-5 mr-2" /> Sucesso
@@ -174,7 +174,7 @@ export default function Tests() {
                 <div className="flex items-center gap-3">
                   <span className="text-xl font-bold">{test.total}</span>
                   {test.success !== null && (
-                    test.success ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-destructive" />
+                    test.success ? <CheckCircle className="h-5 w-5 text-emerald-600" /> : <XCircle className="h-5 w-5 text-destructive" />
                   )}
                 </div>
               </div>

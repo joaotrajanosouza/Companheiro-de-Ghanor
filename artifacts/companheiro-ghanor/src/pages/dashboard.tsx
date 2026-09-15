@@ -202,7 +202,7 @@ export default function Dashboard() {
           {pageFavorites.length > 0 ? (
             <div className="space-y-2" aria-label="Páginas favoritas">
               {pageFavorites.map((favorite) => (
-                <div key={favorite.id} className="flex flex-col gap-2 rounded-lg border border-border bg-background/40 p-3 sm:flex-row sm:items-center">
+                <div key={favorite.id} className="flex flex-col gap-2 rounded-lg border border-border bg-background/60 p-3 sm:flex-row sm:items-center">
                   {editingFavoriteId === favorite.id ? (
                     <form onSubmit={saveFavoriteName} className="flex flex-1 gap-2">
                       <Input
@@ -262,9 +262,9 @@ export default function Dashboard() {
           </CardContent>
         </Card>
         
-        <Card className="game-surface-raised border-b-4 border-b-blue-600/60 hover:-translate-y-1 transition-transform">
+        <Card className="game-surface-raised border-b-4 border-b-sky-700/60 hover:-translate-y-1 transition-transform">
           <CardContent className="p-5 flex flex-col items-center justify-center text-center">
-            <Zap className="h-8 w-8 text-blue-500 mb-3" />
+            <Zap className="h-8 w-8 text-sky-700 mb-3" />
             <span className="text-3xl font-bold font-serif">{character.pmAtual}<span className="text-lg text-muted-foreground">/{character.pmMax}</span></span>
             <span className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1 font-semibold">Pontos de Magia</span>
           </CardContent>
@@ -282,9 +282,9 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="game-surface-raised border-b-4 border-b-yellow-500/60 hover:-translate-y-1 transition-transform">
+        <Card className="game-surface-raised border-b-4 border-b-amber-600/60 hover:-translate-y-1 transition-transform">
           <CardContent className="p-5 flex flex-col items-center justify-center text-center">
-            <Coins className="h-8 w-8 text-yellow-500 mb-3" />
+            <Coins className="h-8 w-8 text-amber-600 mb-3" />
             <span className="text-3xl font-bold font-serif">{character.dinheiro}</span>
             <span className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1 font-semibold">Peças de Ouro</span>
           </CardContent>
@@ -296,7 +296,7 @@ export default function Dashboard() {
           <Card className="h-full game-surface-raised border-primary/20 hover:border-primary transition-all cursor-pointer bg-card/60 hover:bg-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <div className="p-2 rounded-lg bg-primary/15 text-primary">
                   <Dices className="h-6 w-6" />
                 </div>
                 Fazer Teste
@@ -310,7 +310,7 @@ export default function Dashboard() {
           <Card className="h-full game-surface-raised border-primary/20 hover:border-primary transition-all cursor-pointer bg-card/60 hover:bg-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <div className="p-2 rounded-lg bg-primary/15 text-primary">
                   <Sword className="h-6 w-6" />
                 </div>
                 Combate
@@ -324,7 +324,7 @@ export default function Dashboard() {
           <Card className="h-full game-surface-raised border-primary/20 hover:border-primary transition-all cursor-pointer bg-card/60 hover:bg-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <div className="p-2 rounded-lg bg-primary/15 text-primary">
                   <BookOpen className="h-6 w-6" />
                 </div>
                 Anotações
@@ -357,7 +357,7 @@ export default function Dashboard() {
                     <span className="text-xs text-muted-foreground ml-2 uppercase tracking-wider font-semibold">({mod.target})</span>
                   </div>
                 </div>
-                <div className="bg-primary/20 text-primary-foreground font-bold px-4 py-1.5 rounded-full border border-primary/30">
+                <div className="bg-primary text-primary-foreground shadow-sm font-bold px-4 py-1.5 rounded-full">
                   {mod.value > 0 ? `+${mod.value}` : mod.value}
                 </div>
               </div>

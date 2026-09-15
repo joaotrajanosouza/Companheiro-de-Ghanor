@@ -14,7 +14,7 @@ function ActionDisplay({ action }: { action: CombatAction }) {
       <div className="p-3 bg-card rounded border border-border/50 shadow-sm text-sm">
         <div className="font-bold flex items-center gap-2 mb-1">
           <Dices className="h-4 w-4 text-accent" /> 
-          <span className={action.kind === 'magic' ? 'text-blue-400' : 'text-primary'}>
+          <span className={action.kind === 'magic' ? 'text-sky-700' : 'text-primary'}>
             {action.kind === 'attack' ? 'Ataque' : 'Magia'}
           </span> 
           <span className="text-muted-foreground font-normal">→ Total:</span>
@@ -37,7 +37,7 @@ function ActionDisplay({ action }: { action: CombatAction }) {
   if (action.kind === 'heal') {
     return (
       <div className="p-3 bg-card rounded border border-border/50 shadow-sm text-sm">
-        <div className="text-green-500 font-bold flex items-center gap-2">
+        <div className="text-emerald-600 font-bold flex items-center gap-2">
           <Plus className="h-4 w-4" /> 
           <span className="leading-relaxed">{action.resultText}</span>
         </div>
@@ -70,11 +70,11 @@ function EnemyRow({
   const [heal, setHeal] = useState<number | ''>('');
 
   return (
-    <Card className={`game-surface-sunken transition-all ${isDead ? "opacity-60 grayscale" : ""} ${isSelected ? 'ring-2 ring-primary shadow-[0_0_15px_rgba(200,0,0,0.3)]' : ''}`}>
+    <Card className={`game-surface-sunken transition-all ${isDead ? "opacity-60 grayscale" : ""} ${isSelected ? 'ring-2 ring-primary shadow-lg shadow-primary/30' : ''}`}>
       <CardContent className="p-0">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center">
           <div 
-            className="flex-1 p-4 cursor-pointer hover:bg-white/5 transition-colors"
+            className="flex-1 p-4 cursor-pointer hover:bg-foreground/5 transition-colors"
             onClick={onSelect}
           >
             <h4 className="font-bold text-xl font-serif flex items-center gap-2">
@@ -133,7 +133,7 @@ function EnemyRow({
                   <Button 
                     variant="outline" 
                     size="icon" 
-                    className="h-8 w-8 shrink-0 text-green-500 border-green-500/50 hover:bg-green-500/10" 
+                    className="h-8 w-8 shrink-0 text-emerald-600 border-emerald-600/50 hover:bg-emerald-600/10" 
                     onClick={() => { 
                       if(typeof heal === 'number' && !isNaN(heal)) { 
                         onUpdatePV(enemy.id, heal); 
@@ -454,7 +454,7 @@ export default function Combat() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7 space-y-6">
-          <Card className={`game-surface-raised border-2 ${selectedTargetId === 'hero' ? 'border-primary shadow-[0_0_15px_rgba(200,0,0,0.3)]' : 'border-border'}`}>
+          <Card className={`game-surface-raised border-2 ${selectedTargetId === 'hero' ? 'border-primary shadow-lg shadow-primary/30' : 'border-border'}`}>
             <CardHeader className="pb-3 border-b border-border/50 bg-secondary/50">
               <div className="flex justify-between items-center cursor-pointer" onClick={() => setSelectedTargetId('hero')}>
                 <CardTitle className="text-2xl font-serif flex items-center gap-2">
@@ -506,7 +506,7 @@ export default function Combat() {
                     />
                     <Button 
                       variant="outline" 
-                      className="text-green-500 border-green-500/50 hover:bg-green-500/10" 
+                      className="text-emerald-600 border-emerald-600/50 hover:bg-emerald-600/10" 
                       size="icon"
                       onClick={() => { if(typeof manualHeal === 'number' && !isNaN(manualHeal)) { handlePlayerDamageOrHeal(manualHeal, 'heal'); setManualHeal(''); } }}
                     >
@@ -578,7 +578,7 @@ export default function Combat() {
                 </Button>
                 <Button 
                   variant={actionType === 'magic' ? "default" : "ghost"} 
-                  className={`flex-1 ${actionType === 'magic' ? 'bg-blue-600 hover:bg-blue-700 shadow-md text-white' : ''}`}
+                  className={`flex-1 ${actionType === 'magic' ? 'bg-sky-700 hover:bg-sky-800 shadow-md text-white' : ''}`}
                   onClick={() => setActionType('magic')}
                 >
                   Magia
