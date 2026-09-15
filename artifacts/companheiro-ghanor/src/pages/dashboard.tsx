@@ -1,28 +1,75 @@
+import { FormEvent, useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Zap, Coins, ArrowRight, Dices, Sword, BookOpen, Shield } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Heart, Zap, Coins, ArrowRight, Dices, Sword, BookOpen, Shield, BookMarked } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Dashboard() {
   const { state, dispatch } = useGame();
   const { character, campaign } = state;
+  const [pageInput, setPageInput] = useState(String(campaign.currentPage));
+  const parsedPage = Number(pageInput);
+  const isValidPage = pageInput.trim() !== "" && Number.isInteger(parsedPage) && parsedPage > 0;
+
+  useEffect(() => {
+    setPageInput(String(campaign.currentPage));
+  }, [campaign.currentPage]);
+
+  const goToPage = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!isValidPage) return;
+    dispatch({ type: "UPDATE_CAMPAIGN", payload: { currentPage: parsedPage } });
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 game-surface-raised p-6 rounded-xl relative overflow-hidden">
+      <section className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 game-surface-raised p-6 rounded-xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
         <div>
           <h2 className="text-4xl font-serif text-accent drop-shadow-md">Página {campaign.currentPage}</h2>
           <p className="text-muted-foreground font-serif italic mt-1 text-lg">Jornada de {character.name}</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="border-primary/40 hover:border-primary text-primary" onClick={() => dispatch({ type: 'UPDATE_CAMPAIGN', payload: { currentPage: Math.max(1, campaign.currentPage - 1) }})}>
-            Página Anterior
-          </Button>
-          <Button variant="default" className="shadow-lg shadow-primary/20" onClick={() => dispatch({ type: 'UPDATE_CAMPAIGN', payload: { currentPage: campaign.currentPage + 1 }})}>
-            Próxima Página
-          </Button>
+        <div className="flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+          <form onSubmit={goToPage} className="flex w-full items-end gap-2 sm:w-auto">
+            <div className="flex-1 space-y-1 sm:w-40 sm:flex-none">
+              <Label htmlFor="page-selector" className="text-xs uppercase tracking-wider text-muted-foreground">
+                Ir para a página
+              </Label>
+              <Input
+                id="page-selector"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                step={1}
+                value={pageInput}
+                onChange={(event) => setPageInput(event.target.value)}
+                aria-invalid={!isValidPage}
+                aria-describedby={!isValidPage ? "page-selector-error" : undefined}
+                className="bg-background"
+              />
+            </div>
+            <Button type="submit" disabled={!isValidPage} className="shrink-0 shadow-lg shadow-primary/20">
+              <BookMarked className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Ir</span>
+              <span className="sr-only sm:hidden">Ir para a página informada</span>
+            </Button>
+          </form>
+          {!isValidPage && (
+            <p id="page-selector-error" role="alert" className="text-xs text-destructive">
+              Informe um número inteiro maior que zero.
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" className="border-primary/40 hover:border-primary text-primary" disabled={campaign.currentPage <= 1} onClick={() => dispatch({ type: 'UPDATE_CAMPAIGN', payload: { currentPage: Math.max(1, campaign.currentPage - 1) }})}>
+              Página Anterior
+            </Button>
+            <Button variant="default" className="shadow-lg shadow-primary/20" onClick={() => dispatch({ type: 'UPDATE_CAMPAIGN', payload: { currentPage: campaign.currentPage + 1 }})}>
+              Próxima Página
+            </Button>
+          </div>
         </div>
       </section>
 
