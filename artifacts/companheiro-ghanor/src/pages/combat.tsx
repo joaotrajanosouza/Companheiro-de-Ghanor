@@ -37,7 +37,7 @@ function ActionDisplay({ action }: { action: CombatAction }) {
   if (action.kind === 'heal') {
     return (
       <div className="p-3 bg-card rounded border border-border/50 shadow-sm text-sm">
-        <div className="text-emerald-600 font-bold flex items-center gap-2">
+        <div className="text-success font-bold flex items-center gap-2">
           <Plus className="h-4 w-4" /> 
           <span className="leading-relaxed">{action.resultText}</span>
         </div>
@@ -133,7 +133,7 @@ function EnemyRow({
                   <Button 
                     variant="outline" 
                     size="icon" 
-                    className="h-8 w-8 shrink-0 text-emerald-600 border-emerald-600/50 hover:bg-emerald-600/10" 
+                    className="h-8 w-8 shrink-0 text-success border-success/50 hover:bg-success/10"
                     onClick={() => { 
                       if(typeof heal === 'number' && !isNaN(heal)) { 
                         onUpdatePV(enemy.id, heal); 
@@ -506,7 +506,7 @@ export default function Combat() {
                     />
                     <Button 
                       variant="outline" 
-                      className="text-emerald-600 border-emerald-600/50 hover:bg-emerald-600/10" 
+                      className="text-success border-success/50 hover:bg-success/10"
                       size="icon"
                       onClick={() => { if(typeof manualHeal === 'number' && !isNaN(manualHeal)) { handlePlayerDamageOrHeal(manualHeal, 'heal'); setManualHeal(''); } }}
                     >

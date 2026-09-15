@@ -128,6 +128,7 @@ export type JournalEntry = {
 export type Preferences = {
   muteAudio: boolean;
   disableAnimations: boolean;
+  colorTheme: 'light' | 'night';
 };
 
 export type GameState = {

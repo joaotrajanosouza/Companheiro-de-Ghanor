@@ -31,6 +31,8 @@
 
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
 
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
@@ -72,6 +74,8 @@
   
   --destructive: 5 60% 41%;
   --destructive-foreground: 42 35% 96%;
+  --success: 83 39% 30%;
+  --success-foreground: 42 35% 96%;
 
   --input: 42 35% 93%;
   --ring: 20 70% 43%;
@@ -80,6 +84,38 @@
   --app-font-serif: 'Eczar', serif;
   
   --radius: 0.5rem;
+}
+
+.dark {
+  /* Charred parchment, preserving the warm Ghanor palette */
+  --background: 28 24% 10%;
+  --foreground: 40 30% 88%;
+
+  --border: 31 22% 27%;
+
+  --card: 30 23% 14%;
+  --card-foreground: 40 30% 88%;
+  --card-border: 32 23% 29%;
+
+  --primary: 22 72% 54%;
+  --primary-foreground: 28 30% 8%;
+
+  --secondary: 75 30% 46%;
+  --secondary-foreground: 28 30% 8%;
+
+  --muted: 31 18% 22%;
+  --muted-foreground: 38 20% 68%;
+
+  --accent: 42 67% 58%;
+  --accent-foreground: 28 30% 8%;
+
+  --destructive: 5 66% 61%;
+  --destructive-foreground: 28 30% 8%;
+  --success: 82 39% 55%;
+  --success-foreground: 28 30% 8%;
+
+  --input: 30 22% 13%;
+  --ring: 22 72% 54%;
 }
 
 @layer base {
@@ -94,18 +130,28 @@
       url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
     background-attachment: fixed;
   }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at 50% 0%, hsla(42, 67%, 38%, 0.1) 0%, transparent 70%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.025'/%3E%3C/svg%3E");
+  }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif tracking-tight text-accent;
     text-shadow: 0 1px 2px rgba(43,29,20,0.1);
   }
 
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  }
+
   /* Inputs and cards look sunken/raised */
   .game-surface-sunken {
-    @apply bg-background border border-border shadow-[inset_0_2px_4px_rgba(43,29,20,0.06)];
+    @apply bg-background border border-border shadow-[inset_0_2px_4px_rgba(43,29,20,0.06)] dark:shadow-[inset_0_2px_5px_rgba(0,0,0,0.28)];
   }
   
   .game-surface-raised {
-    @apply bg-card border border-card-border shadow-[0_4px_12px_rgba(43,29,20,0.06),inset_0_1px_0_rgba(255,255,255,0.4)];
+    @apply bg-card border border-card-border shadow-[0_4px_12px_rgba(43,29,20,0.06),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)];
   }
 }

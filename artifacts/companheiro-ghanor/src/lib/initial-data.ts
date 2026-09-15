@@ -86,6 +86,7 @@ export const initialGameState: GameState = {
   ],
   preferences: {
     muteAudio: false,
-    disableAnimations: false
+    disableAnimations: false,
+    colorTheme: 'light'
   }
 };

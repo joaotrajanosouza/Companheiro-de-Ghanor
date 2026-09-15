@@ -62,7 +62,7 @@ const DiceFace: React.FC<DiceFaceProps> = ({ value }) => {
   const pips = Array.from({ length: value }).map((_, i) => i);
   
   return (
-    <div className="w-12 h-12 bg-[#F8F4EB] rounded-xl shadow-[inset_0_-2px_4px_rgba(43,29,20,0.1),0_2px_4px_rgba(43,29,20,0.2)] border border-[#D4C7B3] flex relative overflow-hidden">
+    <div className="w-12 h-12 bg-background rounded-xl shadow-[inset_0_-2px_4px_rgba(43,29,20,0.1),0_2px_4px_rgba(43,29,20,0.2)] border border-border flex relative overflow-hidden">
       {/* Pip positions based on value */}
       <div className="w-full h-full relative">
         {pips.map((i) => {
@@ -102,7 +102,7 @@ const DiceFace: React.FC<DiceFaceProps> = ({ value }) => {
           return (
             <div 
               key={i} 
-              className={`absolute w-2.5 h-2.5 rounded-full bg-[#2B1D14] shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] ${posClass}`} 
+              className={`absolute w-2.5 h-2.5 rounded-full bg-foreground shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] ${posClass}`}
             />
           );
         })}

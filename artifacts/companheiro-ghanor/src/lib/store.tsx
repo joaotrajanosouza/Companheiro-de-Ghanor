@@ -54,7 +54,12 @@ export function normalizeState(state: GameState, now = new Date().toISOString())
           ).map(favorite => ({ ...favorite, name: favorite.name.trim() }))
         : [],
     },
-    preferences: state.preferences ?? { muteAudio: false, disableAnimations: false },
+    preferences: {
+      muteAudio: false,
+      disableAnimations: false,
+      colorTheme: 'light',
+      ...state.preferences,
+    },
     combats: (state.combats ?? []).map(c => {
       const startedAt = c.startedAt ?? now;
       const history = c.history ?? [];
@@ -229,6 +234,22 @@ export function gameReducer(state: StoreState, action: Action): StoreState {
 
 const STORAGE_KEY = 'ghanor_save_state';
 
+function getInitialStoreState(): StoreState {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.campaign) {
+        return { past: [], present: normalizeState(parsed) };
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load save', error);
+  }
+
+  return { past: [], present: initialGameState };
+}
+
 const GameStateContext = createContext<{
   state: GameState;
   canUndo: boolean;
@@ -236,28 +257,17 @@ const GameStateContext = createContext<{
 } | null>(null);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(gameReducer, {
-    past: [],
-    present: initialGameState
-  });
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.campaign) {
-          dispatch({ type: 'SET_STATE', payload: parsed });
-        }
-      } catch (e) {
-        console.error('Failed to load save', e);
-      }
-    }
-  }, []);
+  const [state, dispatch] = useReducer(gameReducer, undefined, getInitialStoreState);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.present));
   }, [state.present]);
+
+  useEffect(() => {
+    const isNight = state.present.preferences?.colorTheme === 'night';
+    document.documentElement.classList.toggle('dark', isNight);
+    document.documentElement.style.colorScheme = isNight ? 'dark' : 'light';
+  }, [state.present.preferences?.colorTheme]);
 
   return (
     <GameStateContext.Provider value={{ 

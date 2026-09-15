@@ -2,7 +2,9 @@ import { useGame } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Upload, Trash2, AlertTriangle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Download, Upload, Trash2, AlertTriangle, Moon, Sun } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { initialGameState } from "@/lib/initial-data";
@@ -68,6 +70,39 @@ export default function Settings() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <h2 className="text-3xl font-serif text-accent mb-6">Configurações</h2>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Aparência</CardTitle>
+          <CardDescription>Ajuste a leitura para o período do dia</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between gap-4">
+            <Label htmlFor="night-reading" className="flex items-center gap-3 cursor-pointer">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-accent">
+                {state.preferences?.colorTheme === "night"
+                  ? <Moon className="h-5 w-5" aria-hidden="true" />
+                  : <Sun className="h-5 w-5" aria-hidden="true" />}
+              </span>
+              <span>
+                <span className="block font-semibold">Modo de leitura noturna</span>
+                <span className="block text-sm font-normal text-muted-foreground">
+                  Pergaminho escuro com ocre, laranja queimado e oliva
+                </span>
+              </span>
+            </Label>
+            <Switch
+              id="night-reading"
+              checked={state.preferences?.colorTheme === "night"}
+              onCheckedChange={(checked) => dispatch({
+                type: "UPDATE_PREFERENCES",
+                payload: { colorTheme: checked ? "night" : "light" },
+              })}
+              aria-label="Ativar modo de leitura noturna"
+            />
+          </div>
+        </CardContent>
+      </Card>
       
       <Card>
         <CardHeader>

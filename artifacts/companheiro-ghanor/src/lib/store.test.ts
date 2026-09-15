@@ -138,7 +138,11 @@ describe('histórico estruturado de combate', () => {
       migratedCombat.rounds![0].actions.map(item => item.resultText),
       legacy.combats[0].history,
     );
-    assert.deepEqual(migrated.preferences, { muteAudio: false, disableAnimations: false });
+    assert.deepEqual(migrated.preferences, {
+      muteAudio: false,
+      disableAnimations: false,
+      colorTheme: 'light',
+    });
     assert.equal(legacy.combats[0].rounds, undefined);
     assert.equal(legacy.preferences, undefined);
   });
