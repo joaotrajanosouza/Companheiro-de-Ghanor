@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useReducer, ReactNode } from 'rea
 import { GameState, JournalEntry, Modifier, TestRecord, Combat, Character, Campaign, Preferences, CombatAction, CombatRound } from './types';
 import { initialGameState } from './initial-data';
 
-type Action = 
+export type Action =
   | { type: 'SET_STATE'; payload: GameState }
   | { type: 'UNDO' }
   | { type: 'UPDATE_CHARACTER'; payload: Partial<Character> }
@@ -18,49 +18,44 @@ type Action =
   | { type: 'ADD_COMBAT_ACTION'; payload: { combatId: string; action: CombatAction } }
   | { type: 'END_COMBAT'; payload: string };
 
-type State = {
+export type StoreState = {
   past: GameState[];
   present: GameState;
 };
 
 const MAX_HISTORY = 10;
 
-function normalizeState(state: GameState): GameState {
-  // Ensure preferences exist
-  if (!state.preferences) {
-    state.preferences = { muteAudio: false, disableAnimations: false };
-  }
-
-  // Normalize combats
-  if (state.combats) {
-    state.combats = state.combats.map(c => {
-      let rounds = c.rounds;
-      if (!rounds || rounds.length === 0) {
-        // Convert old history to a single round
-        rounds = [{
-          round: 1,
-          actions: c.history.map((h, i) => ({
-            id: `legacy-${i}`,
-            timestamp: c.startedAt || new Date().toISOString(),
-            round: 1,
-            actor: 'system',
-            target: 'none',
-            kind: 'note',
-            resultText: h
+export function normalizeState(state: GameState, now = new Date().toISOString()): GameState {
+  return {
+    ...state,
+    preferences: state.preferences ?? { muteAudio: false, disableAnimations: false },
+    combats: (state.combats ?? []).map(c => {
+      const startedAt = c.startedAt ?? now;
+      const history = c.history ?? [];
+      const rounds = c.rounds?.length
+        ? c.rounds.map(round => ({
+            ...round,
+            actions: [...round.actions],
           }))
-        }];
-      }
-      return {
-        ...c,
-        startedAt: c.startedAt || new Date().toISOString(),
-        rounds
-      };
-    });
-  }
-  return state;
+        : [{
+            round: 1,
+            actions: history.map((resultText, index) => ({
+              id: `legacy-${index}`,
+              timestamp: startedAt,
+              round: 1,
+              actor: 'system',
+              target: 'none',
+              kind: 'note' as const,
+              resultText,
+            })),
+          }];
+
+      return { ...c, history: [...history], startedAt, rounds };
+    }),
+  };
 }
 
-function gameReducer(state: State, action: Action): State {
+export function gameReducer(state: StoreState, action: Action): StoreState {
   if (action.type === 'UNDO') {
     if (state.past.length === 0) return state;
     const previous = state.past[state.past.length - 1];
@@ -72,7 +67,7 @@ function gameReducer(state: State, action: Action): State {
     return { past: [], present: normalizeState(action.payload) };
   }
 
-  const pushHistory = (newState: GameState, skipHistory = false): State => {
+  const pushHistory = (newState: GameState, skipHistory = false): StoreState => {
     if (skipHistory) {
       return { past: state.past, present: { ...newState, campaign: { ...newState.campaign, updatedAt: new Date().toISOString() } } };
     }
